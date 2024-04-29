@@ -15,6 +15,7 @@ entity alu is
 end entity alu;
 
 architecture rtl of alu is
+    signal temp_sum  : std_logic_vector(0 to 32) := (others => '0');
 begin
     process 
         variable tmp_res : std_logic_vector(0 to 31);
@@ -26,7 +27,9 @@ begin
         V <= '0';
 
         case OP is
-            when "000" => tmp_res := std_logic_vector(signed(A) + signed(B));
+            when "000" => 
+                        tmp_res := std_logic_vector(signed(A) + signed(B));
+                        temp_sum <= std_logic_vector(signed(A) + signed(B));
             when "001" => tmp_res := B;
             when "010" => tmp_res := std_logic_vector(signed(A) - signed(B));
             when "011" => tmp_res := A;
@@ -56,7 +59,6 @@ begin
                 V <= '1';
             end if;
         end if;
-    -- Check carry (maybe add an extra bit and check if its set 
-    -- during the operation) use resize function?
     end process;
+    C <= temp_sum(32);
 end architecture rtl;
