@@ -18,6 +18,7 @@ architecture rtl of alu is
 begin
     process 
         variable tmp_res : std_logic_vector(0 to 31);
+        variable carry   : std_logic;
     begin
         case OP is
             when "000" => tmp_res := std_logic_vector(signed(A) + signed(B));
@@ -30,5 +31,32 @@ begin
             when "111" => tmp_res := not A;
             when others => tmp_res := (others => 'X');
         end case;
+
+        Z <= '0';
+        N <= '0';
+        C <= '0';
+        V <= '0';
+
+        if signed(tmp_res) = 0 then
+            Z <= '1';
+        end if;
+        if signed(tmp_res) < 0 then
+            N <= '1';
+        end if;
+        if signed(A) < 0 and signed(B) < 0 then
+            if signed(tmp_res) < 0 then
+                V <= '0';
+            else
+                V <= '1';
+            end if;
+        elsif signed(A) > 0 and signed(B) > 0 then
+            if signed(tmp_res) > 0 then
+                V <= '0';
+            else
+                V <= '1';
+            end if;
+        end if;
+    -- Check carry (maybe add an extra bit and check if its set duting)
+    -- during th operation
     end process;
 end architecture rtl;
