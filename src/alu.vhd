@@ -20,6 +20,11 @@ begin
         variable tmp_res : std_logic_vector(0 to 31);
         variable carry   : std_logic;
     begin
+        Z <= '0';
+        N <= '0';
+        C <= '0';
+        V <= '0';
+
         case OP is
             when "000" => tmp_res := std_logic_vector(signed(A) + signed(B));
             when "001" => tmp_res := B;
@@ -31,11 +36,6 @@ begin
             when "111" => tmp_res := not A;
             when others => tmp_res := (others => 'X');
         end case;
-
-        Z <= '0';
-        N <= '0';
-        C <= '0';
-        V <= '0';
 
         if signed(tmp_res) = 0 then
             Z <= '1';
@@ -56,7 +56,7 @@ begin
                 V <= '1';
             end if;
         end if;
-    -- Check carry (maybe add an extra bit and check if its set duting)
-    -- during th operation
+    -- Check carry (maybe add an extra bit and check if its set 
+    -- during the operation) use resize function?
     end process;
 end architecture rtl;
