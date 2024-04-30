@@ -74,7 +74,29 @@ begin
         assert (S = "00000000000000000000000000000101" and N = '0' and Z = '0' and C = '0' and V = '0')
             report "Test Case 2 failed" severity error;
 
-        -- Add more test cases here...
+        -- Test case 3: 0 + 0
+        OP <= "000";
+        A  <= "00000000000000000000000000000000";  -- 0
+        B  <= "00000000000000000000000000000000";  -- 0
+        wait for Period;
+        assert (S = "00000000000000000000000000000000" and N = '0' and Z = '1' and C = '0' and V = '0')
+            report "Test Case 3 failed" severity error;
+
+        -- Test case 4: 1 - 1
+        OP <= "000";
+        A  <= "00000000000000000000000000000000";  -- 0
+        B  <= "00000000000000000000000000000000";  -- 0
+        wait for Period;
+        assert (S = "00000000000000000000000000000000" and N = '0' and Z = '1' and C = '0' and V = '0')
+            report "Test Case 4 failed" severity error;
+
+        -- Test case 5: 10 + 12
+        OP <= "000";
+        A  <= "00000000000000000000000000001010";  -- 10
+        B  <= "00000000000000000000000000001100";  -- 12
+        wait for Period;
+        assert (S = "00000000000000000000000000010110" and N = '0' and Z = '0' and C = '0' and V = '0')
+            report "Test Case 5 failed" severity error;
 
         report "End of test. Verify that no error was reported.";
         done <= true;
