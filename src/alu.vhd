@@ -17,7 +17,7 @@ end entity alu;
 architecture rtl of alu is
     signal temp_sum  : std_logic_vector(0 to 32) := (others => '0');
 begin
-    process 
+    process(OP)
         variable tmp_res : std_logic_vector(0 to 31);
         variable carry   : std_logic;
     begin
@@ -29,7 +29,7 @@ begin
         case OP is
             when "000" => 
                         tmp_res := std_logic_vector(signed(A) + signed(B));
-                        temp_sum <= std_logic_vector(signed(A) + signed(B));
+                        --temp_sum <= std_logic_vector(signed(A) + signed(B));
             when "001" => tmp_res := B;
             when "010" => tmp_res := std_logic_vector(signed(A) - signed(B));
             when "011" => tmp_res := A;
@@ -59,6 +59,7 @@ begin
                 V <= '1';
             end if;
         end if;
+         S <= tmp_res;
     end process;
-    C <= temp_sum(32);
+    --C <= temp_sum(32);
 end architecture rtl;

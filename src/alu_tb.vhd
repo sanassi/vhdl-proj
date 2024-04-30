@@ -6,11 +6,15 @@ entity alu_tb is
 end entity alu_tb;
 
 architecture testbench of alu_tb is
-    constant CLK_PERIOD : time := 10 ns;
-    
-    signal clk       : std_logic := '0';
-    signal reset     : std_logic := '0';
-    signal test_done : boolean := false;
+
+    constant Period : time := 10 us; -- speed up simulation with a 100kHz clock
+
+    signal CLK      : std_logic := '0';
+    signal RST      : std_logic := '1';
+    signal TICK1MS  : std_logic := '0';
+    signal Done : boolean;
+
+    --constant CLK_PERIOD : time := 10 ns;
 
     signal OP        : std_logic_vector(0 to 2);
     signal A         : std_logic_vector(0 to 31);
@@ -35,6 +39,10 @@ architecture testbench of alu_tb is
     end component;
 
 begin
+    CLK <= '0' when Done else not CLK after Period / 2;
+    RST <= '1', '0' after Period;
+    Tick1ms <= '0' when Done else not Tick1ms after 1 ms - Period, Tick1ms after 1 ms;
+
     -- Instantiate ALU
     uut : alu
         port map(
@@ -54,7 +62,7 @@ begin
         OP <= "000";  -- Addition
         A  <= "00000000000000000000000000001100";  -- 12
         B  <= "00000000000000000000000000000101";  -- 5
-        wait for CLK_PERIOD;
+        wait for Period;
         assert (S = "00000000000000000000000000010001" and N = '0' and Z = '0' and C = '0' and V = '0')
             report "Test Case 1 failed" severity error;
 
@@ -62,23 +70,14 @@ begin
         OP <= "001";  -- Pass B
         A  <= "00000000000000000000000000001100";  -- 12
         B  <= "00000000000000000000000000000101";  -- 5
-        wait for CLK_PERIOD;
+        wait for Period;
         assert (S = "00000000000000000000000000000101" and N = '0' and Z = '0' and C = '0' and V = '0')
             report "Test Case 2 failed" severity error;
 
         -- Add more test cases here...
 
-        test_done <= true;
-    end process;
-
-    clk_process : process
-    begin
-        while not test_done loop
-            clk <= not clk;
-            wait for CLK_PERIOD / 2;
-        end loop;
+        report "End of test. Verify that no error was reported.";
+        done <= true;
         wait;
     end process;
-
 end architecture testbench;
-
