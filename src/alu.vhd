@@ -52,7 +52,7 @@ begin
             else
                 V <= '1';
             end if;
-        elsif signed(A) > 0 and signed(B) > 0 then
+        elsif signed(A) > 0 and signed(B) > 0 and OP /= "010" then
             if signed(tmp_res) > 0 then
                 V <= '0';
             else

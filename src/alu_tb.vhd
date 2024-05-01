@@ -98,6 +98,23 @@ begin
         assert (S = "00000000000000000000000000010110" and N = '0' and Z = '0' and C = '0' and V = '0')
             report "Test Case 5 failed" severity error;
 
+        -- Test case 6: 0b101 | 0b010 = 0b111
+        OP <= "100";
+        A  <= "00000000000000000000000000000101";  -- 10
+        B  <= "00000000000000000000000000000010";  -- 12
+        wait for Period;
+        assert (S = "00000000000000000000000000000111" and N = '0' and Z = '0' and C = '0' and V = '0')
+            report "Test Case 6 failed" severity error;
+
+        -- Test case 7: 4 - 10 = -6
+        OP <= "010";
+        A  <= "00000000000000000000000000000100";
+        B  <= "00000000000000000000000000001010";
+        wait for Period;
+        assert (S = "11111111111111111111111111111010" and N = '1' and Z = '0' and C = '0' and V = '0')
+            report "Test Case 6 failed" severity error;
+
+
         report "End of test. Verify that no error was reported.";
         done <= true;
         wait;
