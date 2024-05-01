@@ -17,7 +17,7 @@ end entity alu;
 architecture rtl of alu is
     signal temp_sum  : std_logic_vector(0 to 32) := (others => '0');
 begin
-    process(OP)
+    process(OP, A, B)
         variable tmp_res : std_logic_vector(0 to 31);
         variable carry   : std_logic;
     begin
