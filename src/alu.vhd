@@ -11,7 +11,7 @@ entity alu is
             Z  : out std_logic;
             C  : out std_logic;
             V  : out std_logic
-         );
+        );
 end entity alu;
 
 architecture rtl of alu is
@@ -28,8 +28,8 @@ begin
 
         case OP is
             when "000" => 
-                        tmp_res := std_logic_vector(signed(A) + signed(B));
-                        --temp_sum <= std_logic_vector(signed(A) + signed(B));
+                tmp_res := std_logic_vector(signed(A) + signed(B));
+            --temp_sum <= std_logic_vector(signed(A) + signed(B));
             when "001" => tmp_res := B;
             when "010" => tmp_res := std_logic_vector(signed(A) - signed(B));
             when "011" => tmp_res := A;
@@ -46,20 +46,44 @@ begin
         if signed(tmp_res) < 0 then
             N <= '1';
         end if;
-        if signed(A) < 0 and signed(B) < 0 then
-            if signed(tmp_res) < 0 then
-                V <= '0';
-            else
-                V <= '1';
-            end if;
-        elsif signed(A) > 0 and signed(B) > 0 and OP /= "010" then
-            if signed(tmp_res) > 0 then
-                V <= '0';
-            else
-                V <= '1';
+
+        -- handle overflow 
+        -- TODO: refactor
+        if OP = "000" then -- + 
+            if signed(A) > 0 and signed(B) > 0 then
+                if signed(tmp_res) < 0 then
+                    V <= '1';
+                end if;
+            elsif signed(A) < 0 and signed(B) < 0 then
+                if signed(tmp_res) > 0 then
+                    V <= '1';
+                end if;
+            elsif OP = "010" then
+                if signed(A) < 0 and signed(B) < 0 then
+                    if signed(tmp_res) > 0 then
+                        V <= '1';
+                    end if;
+                end if;
             end if;
         end if;
-         S <= tmp_res;
+        -- add other overflow checks
+
+
+        --if signed(A) < 0 and signed(B) < 0 then
+        --    if signed(tmp_res) < 0 then
+        --        V <= '0';
+        --   else
+        --        V <= '1';
+        --    end if;
+        --elsif signed(A) > 0 and signed(B) > 0 and OP /= "010" then
+        --    if signed(tmp_res) > 0 then
+        --        V <= '0';
+        --    else
+        --        V <= '1';
+        --    end if;
+        --end if;
+
+        S <= tmp_res;
     end process;
-    --C <= temp_sum(32);
+--C <= temp_sum(32);
 end architecture rtl;
