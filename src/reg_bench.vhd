@@ -5,13 +5,13 @@ use IEEE.numeric_std.all;
 entity reg_bench is
     port (  clk : in std_logic;
             rst : in std_logic;
-            w   : out std_logic_vector(31 downto 0);
+            w   : in std_logic_vector(31 downto 0);
             ra  : in std_logic_vector(3 downto 0);
             rb  : in std_logic_vector(3 downto 0);
-            rw  : out std_logic_vector(3 downto 0);
+            rw  : in std_logic_vector(3 downto 0);
             we  : in std_logic;
-            a   : in std_logic_vector(31 downto 0);
-            b   : in std_logic_vector(31 downto 0)
+            a   : out std_logic_vector(31 downto 0);
+            b   : out std_logic_vector(31 downto 0)
         );
 end entity reg_bench;
 
@@ -29,6 +29,20 @@ architecture rtl of reg_bench is
         return result;
     end init_banc;
 -- Déclaration et Initialisation du Banc de Registres 16x32 bits
-    signal Banc: table:=init_banc;
+    signal bench: table:=init_banc;
 begin
+    a <= bench(to_integer(unsigned(ra)));
+    b <= bench(to_integer(unsigned(rb)));
+    process (ra, rb)
+    begin
+        if rst = '1' then
+            a <= (others => '0');
+            b <= (others => '0');
+        elsif rising_edge(clk) then
+            if we = '1' then
+                bench(to_integer(unsigned(rw))) <= w;
+            end if;
+        end if;
+    end process;
+
 end architecture rtl;
