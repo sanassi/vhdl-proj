@@ -16,10 +16,10 @@ architecture testbench of alu_tb is
 
     --constant CLK_PERIOD : time := 10 ns;
 
-    signal OP        : std_logic_vector(0 to 2);
-    signal A         : std_logic_vector(0 to 31);
-    signal B         : std_logic_vector(0 to 31);
-    signal S         : std_logic_vector(0 to 31);
+    signal OP        : std_logic_vector(2 downto 0);
+    signal A         : std_logic_vector(31 downto 0);
+    signal B         : std_logic_vector(31 downto 0);
+    signal S         : std_logic_vector(31 downto 0);
     signal N         : std_logic;
     signal Z         : std_logic;
     signal C         : std_logic;
@@ -27,10 +27,10 @@ architecture testbench of alu_tb is
 
     component alu
         port (
-            OP : in std_logic_vector(0 to 2);
-            A  : in std_logic_vector(0 to 31);
-            B  : in std_logic_vector(0 to 31);
-            S  : out std_logic_vector(0 to 31);
+            OP : in std_logic_vector(2 downto 0);
+            A  : in std_logic_vector(31 downto 0);
+            B  : in std_logic_vector(31 downto 0);
+            S  : out std_logic_vector(31 downto 0);
             N  : out std_logic;
             Z  : out std_logic;
             C  : out std_logic;
@@ -111,8 +111,31 @@ begin
         A  <= "00000000000000000000000000000100";
         B  <= "00000000000000000000000000001010";
         wait for Period;
-        assert (S = "11111111111111111111111111111010" and N = '1' and Z = '0' and C = '0' and V = '0')
-            report "Test Case 6 failed" severity error;
+        assert (S = "11111111111111111111111111111010" and N = '1' and Z = '0' and C = '1' and V = '0')
+            report "Test Case 7 failed" severity error;
+        -- Test case 8: 0 - 1 = -1
+        OP <= "010";
+        A  <= "00000000000000000000000000000000";
+        B  <= "00000000000000000000000000000001";
+        wait for Period;
+        assert (S = "11111111111111111111111111111111" and N = '1' and Z = '0' and C = '1' and V = '0')
+            report "Test Case 8 failed" severity error;
+        -- Test case 9: 2147483647 + 1 = -2147483648
+        OP <= "001";
+        A  <= "00111111111111111111111111111111";
+        B  <= "00000000000000000000000000000001";
+        wait for Period;
+        assert (S = "01000000000000000000000000000000" )-- and N = '0' and Z = '0' and C = '0' and V = '0')
+            report "Test Case 9 failed" severity error;
+        -- Test case 10: 1073741824 - 1 = 1073741823
+        OP <= "010";
+        A  <= "01000000000000000000000000000000";
+        B  <= "00000000000000000000000000000001";
+        wait for Period;
+        assert (S = "00111111111111111111111111111111" and N = '0' and Z = '0' and C = '0' and V = '0')
+            report "Test Case 10 failed" severity error;
+
+
 
 
         report "End of test. Verify that no error was reported.";
