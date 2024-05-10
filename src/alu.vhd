@@ -32,11 +32,23 @@ begin
                 tmp_res := std_logic_vector(signed(A) + signed(B));
                 carry_res := std_logic_vector(signed(('0' & A)) + signed(B)); -- adding a carry bit with 0 as default value
                 C <= carry_res(carry_res'left);
+                if signed(A) > 0 and signed(B) > 0 and signed(tmp_res) < 0 then -- adding two positives should be positive
+                    V <= '1';
+                elsif signed(A) < 0 and signed(B) < 0 and signed(tmp_res) > 0 then -- adding two negatives should be negative
+                    V <= '1';
+                end if;
+
             when "001" => tmp_res := B;
             when "010" => -- op -
                 tmp_res := std_logic_vector(signed(A) - signed(B));
                 carry_res := std_logic_vector(signed(('0' & A)) + signed(not B) + 1); -- adding a carry bit with 0 as default value
                 C <= carry_res(carry_res'left);
+                if signed(A) > 0 and signed(B) < 0 and signed(tmp_res) < 0 then --subtract negative is same as adding a positive
+                    V <= '1';
+                elsif signed(A) < 0 and signed(B) > 0 and signed(tmp_res) > 0 then -- subtract positive is same as adding a negative
+                    V <= '1';
+                end if;
+
             when "011" => tmp_res := A;
             when "100" => tmp_res := A or B;
             when "101" => tmp_res := A and B;
@@ -49,20 +61,6 @@ begin
             Z <= '1';
         elsif signed(tmp_res) < 0 then
             N <= '1';
-        end if;
-
-        if OP = "000" then -- op +
-            if signed(A) > 0 and signed(B) > 0 and signed(tmp_res) < 0 then -- adding two positives should be positive
-                V <= '1';
-            elsif signed(A) < 0 and signed(B) < 0 and signed(tmp_res) > 0 then -- adding two negatives should be negative
-                V <= '1';
-            end if;
-        elsif OP = "010" then -- op -
-                if signed(A) > 0 and signed(B) < 0 and signed(tmp_res) < 0 then --subtract negative is same as adding a positive
-                    V <= '1';
-                elsif signed(A) < 0 and signed(B) > 0 and signed(tmp_res) < 0 then -- subtract positive is same as adding a negative
-                    V <= '1';
-                end if;
         end if;
         S <= tmp_res;
     end process;
