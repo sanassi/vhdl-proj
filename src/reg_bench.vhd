@@ -33,14 +33,16 @@ architecture rtl of reg_bench is
 begin
     a <= bench(to_integer(unsigned(ra)));
     b <= bench(to_integer(unsigned(rb)));
-    process (ra, rb)
+    process (rst, clk)
     begin
         if rst = '1' then
             a <= (others => '0');
             b <= (others => '0');
         elsif rising_edge(clk) then
             if we = '1' then
-                bench(to_integer(unsigned(rw))) <= w;
+                if unsigned(rw) < 16 then
+                    bench(to_integer(unsigned(rw))) <= w;
+                end if;
             end if;
         end if;
     end process;
