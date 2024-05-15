@@ -100,7 +100,7 @@ begin
 
         -- Test case 6: 0101 or 0010 = 0111
         OP <= "100";
-        A  <= "00000000000000000000000000000101"; 
+        A  <= "00000000000000000000000000000101";
         B  <= "00000000000000000000000000000010";
         wait for Period;
         assert (S = "00000000000000000000000000000111" and N = '0' and Z = '0' and C = '0' and V = '0')
@@ -171,7 +171,7 @@ begin
         B  <= "00000000000000000000000000000001";
         wait for Period;
         assert (S = "10000000000000000000000000000000"  and N = '1' and Z = '0'
-        and C = '0' and V = '1') 
+        and C = '0' and V = '1')
             report "Test Case 15 failed" severity error;
         -- Test case 16:  1 + 2147483647  = -2147483648
         OP <= "000";
@@ -179,7 +179,7 @@ begin
         B  <= "01111111111111111111111111111111";
         wait for Period;
         assert (S = "10000000000000000000000000000000"  and N = '1' and Z = '0'
-        and C = '0' and V = '1') 
+        and C = '0' and V = '1')
             report "Test Case 16 failed" severity error;
         -- Test case 17:  1 - (-2147483648)  = -2147483647
         OP <= "010";
@@ -187,7 +187,7 @@ begin
         B  <= "10000000000000000000000000000000";
         wait for Period;
         assert (S = "10000000000000000000000000000001"  and N = '1' and Z = '0'
-        and C = '0' and V = '1') 
+        and C = '0' and V = '1')
             report "Test Case 17 failed" severity error;
         -- Test case 18:  2147483647 - (-1)   = -2147483648
         OP <= "010";
@@ -195,7 +195,7 @@ begin
         B  <= "11111111111111111111111111111111";
         wait for Period;
         assert (S = "10000000000000000000000000000000"  and N = '1' and Z = '0'
-        and C = '0' and V = '1') 
+        and C = '0' and V = '1')
             report "Test Case 18 failed" severity error;
         -- Test case 19:  -2147483648 - 1    =
         OP <= "010";
@@ -203,9 +203,44 @@ begin
         B  <= "00000000000000000000000000000001";
         wait for Period;
         assert (S = "01111111111111111111111111111111"  and
-        N = '0' and Z = '0'
-        and C = '0' and V = '1') 
+        N = '0' and Z = '0' and C = '0' and V = '1')
             report "Test Case 19 failed" severity error;
+        -- Test case 20:  Carry flag add
+        OP <= "000";
+        A  <= "11111111111111111111111111111111";
+        B  <= "00000000000000000000000000000001";
+        wait for Period;
+        assert (S = "00000000000000000000000000000000"
+        and  N = '0' and Z = '1' and C = '1' and V = '0')
+            report "Test Case 20 failed" severity error;
+        -- Test case 21:  Carry flag add
+        OP <= "000";
+        A  <= "11111111111111111111101111111111";
+        B  <= "00000000000000100000000000000011";
+        wait for Period;
+        assert (S = "00000000000000011111110000000010"
+        and  N = '0' and Z = '0' and C = '1' and V = '0')
+            report "Test Case 21 failed" severity error;
+        -- Test case 22:  Carry flag sub
+        OP <= "010";
+        A  <= "00000000000000000000000000000000";
+        B  <= "00000000000000000000000000000001";
+        wait for Period;
+        -- sub of two numbers requires a borrow into the MSB substracted
+        assert (S = "11111111111111111111111111111111"
+        and  N = '1' and Z = '0' and C = '1' and V = '0')
+            report "Test Case 22 failed" severity error;
+        -- Test case 23:  Carry flag sub
+        OP <= "010";
+        A  <= "00000000000111000000000000000100";
+        B  <= "00011111110000100000000010000011";
+        wait for Period;
+        -- sub of two numbers requires a borrow into the MSB substracted
+        assert (S = "11100000010110011111111110000001"
+        and  N = '1' and Z = '0' and C = '1' and V = '0')
+            report "Test Case 23 failed" severity error;
+
+
 
 
 
