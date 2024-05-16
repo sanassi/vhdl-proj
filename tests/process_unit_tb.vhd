@@ -18,7 +18,6 @@ architecture testbench of process_unit_tb is
     signal rw  :  std_logic_vector(3 downto 0);
     signal ra  :  std_logic_vector(3 downto 0);
     signal rb  :  std_logic_vector(3 downto 0);
-    signal w   :  std_logic_vector(31 downto 0);
     signal s   :  std_logic_vector(31 downto 0);
 
     component process_unit
@@ -49,17 +48,28 @@ begin
             we  => we,
             rw  => rw,
             ra  => ra,
-            rb  => rb
+            rb  => rb,
+            s => s
         );
 
     stimulus : process
     begin
+        -- Load R(15) into A
+        -- Write in R(1) the result
         we <= '1';
         ra <= std_logic_vector(to_unsigned(15, 4));
         rw <= std_logic_vector(to_unsigned(1, 4));
-        op <= "000";
+        op <= "011";
         wait for Period;
         assert (s = X"00000030") report "Test Case 1 failed" severity error;
+
+        we <= '1';
+        ra <= std_logic_vector(to_unsigned(1, 4));
+        rb <= std_logic_vector(to_unsigned(15, 4));
+        rw <= std_logic_vector(to_unsigned(1, 4));
+        op <= "000";
+        wait for Period;
+        assert (s = X"00000060") report "Test Case 2 failed" severity error;
 
         done <= true;
         wait;
