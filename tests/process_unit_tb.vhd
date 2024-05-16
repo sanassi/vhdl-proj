@@ -6,7 +6,7 @@ entity process_unit_tb is
 end entity process_unit_tb;
 
 architecture testbench of process_unit_tb is
-    constant Period : time := 10 us; -- speed up simulation with a 100kHz clock
+    constant Period : time := 1 us; -- speed up simulation with a 100kHz clock
 
     signal CLK      : std_logic := '0';
     signal RST      : std_logic := '1';
