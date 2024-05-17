@@ -25,58 +25,72 @@ procedure readRegister(constant reg_nb : in Std_logic_vector(3 downto 0);
         ALU_op <= "011";
         reg_rn <= reg_nb;
         wait for Period;
-    end procedure;
+end procedure;
+
+procedure test(
+                  constant test_name : in string;
+                  constant exp_value : in std_logic_vector(31 downto 0);
+                  constant opVal  : in  std_logic_vector(2 downto 0);
+                  constant dst : in std_logic_vector(3 downto 0);
+                  constant srcN : in  std_logic_vector(3 downto 0);
+                  constant srcM : in std_logic_vector(3 downto 0);
+                  signal s_clk      : out std_logic;
+                  signal s_rst      : out std_logic;
+                  signal r_RegWr : out std_logic;
+                  signal ALU_op  : out  std_logic_vector(2 downto 0);
+                  signal r_rd  :  out std_logic_vector(3 downto 0);
+                  signal r_rn  :  out std_logic_vector(3 downto 0);
+                  signal r_rm  :  out std_logic_vector(3 downto 0)
+) is
+begin
+        s_rst <= '0';
+        s_clk <= '0';
+        r_rn <= srcN;
+        r_rd <= dst;
+        r_rm <= srcM;
+        ALU_op <= opVal;
+        wait for Period;
+        assert (s = exp_value) report test_name & " failed "
+        & "exp : " & integer'image(to_integer(signed(exp_value))) & "  got : "  & 
+        integer'image(to_integer(signed(s))) severity error;
+        wait for Period;
+        r_regWr <= '1';
+        s_clk <= '1';
+        wait for Period;
+        readRegister(dst, r_regWr, ALU_op, r_rn);
+        assert (s = exp_value) report test_name & " failed, dst register content "
+        & "does not match, exp : " & integer'image(to_integer(signed(exp_value)))
+        & " got : "  & integer'image(to_integer(SIGNED(s))) severity error;
+        wait for Period;
+        -- r_regWr is already '0' thanks to readRegister
+        s_clk <= '0';
+        s_rst <= '1';
+        wait for Period;
+
+end procedure;
 begin
 
-    CLK <= '0' when Done else not CLK after Period / 2;
---    RST <= '1', '0' after Period;
-    
 process
     begin
+        -- first reset
         wait for Period;
-        -- R(1) = R(15) 
-        rst <= '0';
+        -- can begin test
 
-        rn <= "1111"; -- 15 --std_logic_vector(to_unsigned(15, 4));
-        rd <= "0001"; --std_logic_vector(to_unsigned(1, 4));
-        rm <= "0000";
-        regWr <= '1';
-        ALUctr <= "011";
-        wait for Period;
-        assert (s = X"00000030") report "R(1) = R(15) failed "
-        & "exp : 48  got : "  & integer'image(to_integer(SIGNED(s)))
-        severity error;
-        regWr <= '0';
-        readRegister("0001", regWr, ALUctr, rn);
-        assert (s = X"00000030") report "R(1) = R(15) failed, register content "
-        & "does not match, exp : 48  got : "  & integer'image(to_integer(SIGNED(s)))
-        severity error;
-
-        rst <= '1';
-        regWr <= '0';
-        wait for Period;
-
+        -- R(1) = R(15)
+        test("R(1) = R(15)", X"00000030", "011", "0001", "1111", "0000", clk, 
+        rst, regWr, ALUctr, rd, rn, rm);
         -- R(1) = R(1) + R(15)
-        rst <= '0';
-        rn <= "0001";
-        rd <= "0001";
-        rm <= "1111";
-        regWr <= '1';
-        ALUctr <= "000";
-        wait for Period;
-        assert (s = X"00000030") report "R(1) = R(1) + R(15) failed "
-        & "exp : 48  got : "  & integer'image(to_integer(SIGNED(s)))
-        severity error;
-        readRegister("0001", regWr, ALUctr, rn);
-        assert (s = X"00000030") report "R(1) = R(1) + R(15) failed, register content "
-        & "does not match, exp : 48  got : "  & integer'image(to_integer(SIGNED(s)))
-        severity error;
-
-        wait for Period;
-
+        test("R(1) = R(1) + R(15)", X"00000030", "000", "0001", "0001", "1111",
+        clk, rst, regWr, ALUctr, rd, rn, rm);
         -- R(2) = R(1) + R(15)
+        test("R(2) = R(1) + R(15)", X"00000030", "000", "0010", "0001", "1111",
+        clk, rst, regWr, ALUctr, rd, rn, rm);
         -- R(3) = R(1) – R(15)
+        test("R(3) = R(1) - R(15)", X"FFFFFFD0", "010", "0010", "0001", "1111",
+        clk, rst, regWr, ALUctr, rd, rn, rm);
         -- R(5) = R(7) – R(15)
+        test("R(5) = R(7) - R(15)", X"FFFFFFD0", "010", "0101", "0111", "1111",
+        clk, rst, regWr, ALUctr, rd, rn, rm);
 
         done <= true;
         wait;
