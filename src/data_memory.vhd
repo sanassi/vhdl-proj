@@ -34,7 +34,7 @@ begin
     process(clk, rst)
     begin
         if rst = '1' then
-            dataOut <= (others => '0');
+            registers <= init_regs;
         elsif rising_edge(clk) then
             if WrEn = '1' then
                 if to_integer(unsigned(addr)) <= 63 then
