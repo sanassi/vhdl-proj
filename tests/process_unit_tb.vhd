@@ -28,7 +28,7 @@ procedure readRegister(constant reg_nb : in Std_logic_vector(3 downto 0);
         wait for Period;
 end procedure;
 
-procedure test(
+procedure registers_test(
                   constant test_name : in string;
                   constant exp_value : in std_logic_vector(31 downto 0);
                   constant opVal  : in  std_logic_vector(2 downto 0);
@@ -67,31 +67,92 @@ begin
         s_clk <= '0';
         s_rst <= '1';
         wait for Period;
+end procedure;
+
+procedure imm_value_test(
+                  constant test_name : in string;
+                  constant exp_value : in std_logic_vector(31 downto 0);
+                  constant opVal  : in  std_logic_vector(2 downto 0);
+                  constant dst : in std_logic_vector(3 downto 0);
+                  constant srcN : in  std_logic_vector(3 downto 0);
+                  constant imm8Value : in  std_logic_vector(7 downto 0);
+                  signal s_clk      : out std_logic;
+                  signal s_rst      : out std_logic;
+                  signal s_ALUsrc      : out std_logic;
+                  signal s_imm8 : out  std_logic_vector(7 downto 0);
+                  signal r_RegWr : out std_logic;
+                  signal ALU_op  : out  std_logic_vector(2 downto 0);
+                  signal r_rd  :  out std_logic_vector(3 downto 0);
+                  signal r_rn  :  out std_logic_vector(3 downto 0)
+) is
+begin
+        s_rst <= '0';
+        s_clk <= '0';
+        r_rn <= srcN;
+        r_rd <= dst;
+        ALU_op <= opVal;
+        s_imm8 <= imm8Value;
+        s_ALUsrc <= '1'; -- ALU src is imm8
+        wait for Period;
+        assert (s = exp_value) report test_name & " failed "
+        & "exp : " & integer'image(to_integer(signed(exp_value))) & "  got : "  & 
+        integer'image(to_integer(signed(s))) severity error;
+        wait for Period;
+        r_regWr <= '1';
+        s_clk <= '1';
+        wait for Period;
+        readRegister(dst, r_regWr, ALU_op, r_rn);
+        assert (s = exp_value) report test_name & " failed, dst register content "
+        & "does not match, exp : " & integer'image(to_integer(signed(exp_value)))
+        & " got : "  & integer'image(to_integer(SIGNED(s))) severity error;
+        wait for Period;
+        -- r_regWr is already '0' thanks to readRegister
+        s_clk <= '0';
+        s_rst <= '1';
+        s_ALUsrc <= '0';
+        wait for Period;
 
 end procedure;
+
 begin
 
 process
     begin
         -- first reset
         wait for Period;
-        -- can begin test
+        -- can begin testing
 
-        -- R(1) = R(15)
-        test("R(1) = R(15)", X"00000030", "011", "0001", "1111", "0000", clk, 
+        -- R(1) = R(15), copie d'une valeur d'un registre à un autre
+        registers_test("R(1) = R(15)", X"00000030", "011", "0001", "1111", "0000", clk, 
         rst, regWr, ALUctr, rd, rn, rm);
-        -- R(1) = R(1) + R(15)
-        test("R(1) = R(1) + R(15)", X"00000030", "000", "0001", "0001", "1111",
+        -- R(1) = R(1) + R(15), addition de 2 registres 
+        registers_test("R(1) = R(1) + R(15)", X"00000030", "000", "0001", "0001", "1111",
         clk, rst, regWr, ALUctr, rd, rn, rm);
         -- R(2) = R(1) + R(15)
-        test("R(2) = R(1) + R(15)", X"00000030", "000", "0010", "0001", "1111",
+        registers_test("R(2) = R(1) + R(15)", X"00000030", "000", "0010", "0001", "1111",
         clk, rst, regWr, ALUctr, rd, rn, rm);
-        -- R(3) = R(1) – R(15)
-        test("R(3) = R(1) - R(15)", X"FFFFFFD0", "010", "0010", "0001", "1111",
+        -- R(3) = R(1) – R(15), soustraction de 2 registres
+        registers_test("R(3) = R(1) - R(15)", X"FFFFFFD0", "010", "0010", "0001", "1111",
         clk, rst, regWr, ALUctr, rd, rn, rm);
         -- R(5) = R(7) – R(15)
-        test("R(5) = R(7) - R(15)", X"FFFFFFD0", "010", "0101", "0111", "1111",
+        registers_test("R(5) = R(7) - R(15)", X"FFFFFFD0", "010", "0101", "0111", "1111",
         clk, rst, regWr, ALUctr, rd, rn, rm);
+
+        -- R(5) = R(5) + 8
+        imm_value_test("R(5) = R(5) + 8", X"00000008", "000", "0101", "0101",
+        "00001000", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+        -- addition de R(15) avec une valeur immediate
+        imm_value_test("R(5) = R(5) + (-123)", X"ffffff85", "000", "0101", "0101",
+        "10000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+        -- soustraction d'une valeur immediate à R(3)
+        imm_value_test("R(3) = R(3) - 5", X"fffffffb", "010", "0011", "0101",
+        "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+
+        -- R(7) = R(15) - 5
+        imm_value_test("R(7) = R(15) - 5", X"0000002b", "010", "0101", "1111",
+        "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+        -- ecriture d'un registre dans un mot de la memoire
+        -- lecture d'un mot de la memoire dans un registre
 
         done <= true;
         wait;
