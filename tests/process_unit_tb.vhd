@@ -11,8 +11,7 @@ architecture testbench of process_unit_tb is
     signal CLK      : std_logic := '0';
     signal RST      : std_logic := '1';
     signal Done : boolean := false;
-    signal RegWr  :  std_logic := '0';
-    signal ALUsrc  :  std_logic := '0';
+    signal RegWr, Wsrc, ALUsrc, MemWr  :  std_logic := '0';
     signal imm8  :  std_logic_vector(7 downto 0) := (others => '0');
 
     signal ALUctr  :  std_logic_vector(2 downto 0) := (others => '0');
@@ -105,10 +104,12 @@ PU : entity work.process_unit
                 rd  => rd,
                 rn  => rn,
                 rm  => rm,
-                ALUctr  => ALUctr,
-                ALUsrc => ALUsrc,
                 imm8 => imm8,
                 RegWr  => RegWr,
+                ALUctr  => ALUctr,
+                ALUsrc => ALUsrc,
+                Wsrc => Wsrc,
+                MemWr => MemWr,
                 result => s
             );
 end architecture testbench;

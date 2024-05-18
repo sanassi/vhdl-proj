@@ -11,13 +11,15 @@ entity process_unit is
             RegWr : in std_logic;
             ALUctr : in std_logic_vector(2 downto 0);
             ALUsrc : in std_logic;
+            Wsrc : in std_logic;
+            MemWr : in std_logic;
             result   : out std_logic_vector(31 downto 0)
          );
 end entity;
 
 architecture rtl of process_unit is
     signal N, Z, C, V : std_logic := '0';
-    signal W, ALU_A, ALU_B, rg_B, imm32 : std_logic_vector(31 downto 0) := (others => '0');
+    signal W, ALU_A, ALU_B, ALU_out, rg_B, imm32, dataOut: std_logic_vector(31 downto 0) := (others => '0');
 begin
     register_bench : entity work.reg_bench
 port map (
@@ -36,25 +38,41 @@ port map (
                 op => ALUctr,
                 A => ALU_A,
                 B => ALU_B,
-                S => W,
+                S => ALU_out,
                 N => N,
                 Z => Z,
                 C => C,
                 V => V
             );
     Extender : entity work.sign_extension
-    -- generic map( N => 8) already 8 by default
     port map(
         E => imm8,
         S => imm32
             );
-    MUX : entity work.multiplexer_2_to_1
+    MUX1 : entity work.multiplexer_2_to_1
     generic map (N => 32)
     port map(
             A => rg_B,
             B => imm32,
             COM => ALUSrc,
             S => ALU_B
+            );
+    data_memory : entity work.data_memory
+    port map (
+        clk => clk,
+        rst => rst,
+        dataIn => rg_B,
+        dataOut => dataOut,
+        addr => ALU_out(5 downto 0),
+        WrEn => MemWr
+             );
+    MUX2 : entity work.multiplexer_2_to_1
+    generic map (N => 32)
+    port map(
+            A => ALU_out,
+            B => dataOut,
+            COM => Wsrc,
+            S => W
             );
     result <= W;
 end architecture;
