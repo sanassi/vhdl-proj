@@ -17,6 +17,12 @@ architecture rtl of instruction_handler is
     signal ext_pc : std_logic_vector(31 downto 0) := (others => '0');
     signal inc_pc : std_logic_vector(31 downto 0) := (others => '0');
 begin
+    process (rst, clk)
+    begin
+        if rst = '1' then
+            PC <= (others => '0') ;
+        end if;
+    end process;
 
     inst_memory : entity work.instruction_memory
     port map (
