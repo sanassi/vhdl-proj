@@ -24,6 +24,9 @@ begin
         end if;
     end process;
 
+    inc_pc <= std_logic_vector(unsigned(PC) + 1);
+    ext_pc <= std_logic_vector(unsigned(PC) + 1);
+
     inst_memory : entity work.instruction_memory
     port map (
                 PC => PC,
