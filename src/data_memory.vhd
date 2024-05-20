@@ -8,7 +8,7 @@ entity data_memory is
             rst : in std_logic;
             dataIn : in std_logic_vector(31 downto 0);
             dataOut : out std_logic_vector(31 downto 0);
-            addr : inout std_logic_vector(5 downto 0);
+            addr : in std_logic_vector(5 downto 0);
             WrEn : in std_logic
          );
 end entity;
