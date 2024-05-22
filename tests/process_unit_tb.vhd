@@ -138,22 +138,24 @@ procedure memory_write_test(
 begin
         -- WRITE REGISTER VALUE IN DATA MEMORY
         s_rst <= '0';
-        s_clk <= '1';
+        s_MemWr <= '1'; -- store in Data Memory register
         r_rn <= srcN;
         r_rd <= dst;
         r_rm <= srcM;
         ALU_op <= opVal;
         s_imm8 <= imm8Value;
         s_ALUsrc <= ALUsrc_val; -- use imm8 or register value
-        s_MemWr <= '1'; -- store in Data Memory register
         s_Wsrc <= '0';
         -- the output of the ALU represent the address of data memory register
+        wait for Period;
+        s_clk <= '1';
         wait for Period;
         assert (s = addr_exp_value) report test_name &
         " failed, address value did not match : "
         & integer'image(to_integer(signed(addr_exp_value)))
         & " got : "  & integer'image(to_integer(signed(s))) severity error;
 
+        wait for Period;
         s_clk <= '0';
         s_MemWr <= '0'; -- only reading
         s_Wsrc <= '1'; -- W / s is now DataOut of DataMemory entity
@@ -184,43 +186,53 @@ process
         wait for Period;
         -- can begin testing
 
-        -- R(1) = R(15), copie d'une valeur d'un registre à un autre
-        registers_test("R(1) = R(15)", X"00000030", "011", "0001", "1111", "0000", clk,
-        rst, regWr, ALUctr, rd, rn, rm);
-        -- R(1) = R(1) + R(15), addition de 2 registres
-        registers_test("R(1) = R(1) + R(15)", X"00000030", "000", "0001", "0001", "1111",
-        clk, rst, regWr, ALUctr, rd, rn, rm);
-        -- R(2) = R(1) + R(15)
-        registers_test("R(2) = R(1) + R(15)", X"00000030", "000", "0010", "0001", "1111",
-        clk, rst, regWr, ALUctr, rd, rn, rm);
-        -- R(3) = R(1) – R(15), soustraction de 2 registres
-        registers_test("R(3) = R(1) - R(15)", X"FFFFFFD0", "010", "0010", "0001", "1111",
-        clk, rst, regWr, ALUctr, rd, rn, rm);
-        -- R(5) = R(7) – R(15)
-        registers_test("R(5) = R(7) - R(15)", X"FFFFFFD0", "010", "0101", "0111", "1111",
-        clk, rst, regWr, ALUctr, rd, rn, rm);
+      -- R(1) = R(15), copie d'une valeur d'un registre à un autre
+      registers_test("R(1) = R(15)", X"00000030", "011", "0001", "1111", "0000", clk,
+      rst, regWr, ALUctr, rd, rn, rm);
+      -- R(1) = R(1) + R(15), addition de 2 registres
+      registers_test("R(1) = R(1) + R(15)", X"00000030", "000", "0001", "0001", "1111",
+      clk, rst, regWr, ALUctr, rd, rn, rm);
+      -- R(2) = R(1) + R(15)
+      registers_test("R(2) = R(1) + R(15)", X"00000030", "000", "0010", "0001", "1111",
+      clk, rst, regWr, ALUctr, rd, rn, rm);
+      -- R(3) = R(1) – R(15), soustraction de 2 registres
+      registers_test("R(3) = R(1) - R(15)", X"FFFFFFD0", "010", "0010", "0001", "1111",
+      clk, rst, regWr, ALUctr, rd, rn, rm);
+      -- R(5) = R(7) – R(15)
+      registers_test("R(5) = R(7) - R(15)", X"FFFFFFD0", "010", "0101", "0111", "1111",
+      clk, rst, regWr, ALUctr, rd, rn, rm);
 
-        -- R(5) = R(5) + 8
-        imm_value_test("R(5) = R(5) + 8", X"00000008", "000", "0101", "0101",
-        "00001000", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
-        -- addition de R(15) avec une valeur immediate
-        imm_value_test("R(5) = R(5) + (-123)", X"ffffff85", "000", "0101", "0101",
-        "10000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
-        -- soustraction d'une valeur immediate à R(3)
-        imm_value_test("R(3) = R(3) - 5", X"fffffffb", "010", "0011", "0101",
-        "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+      -- R(5) = R(5) + 8
+      imm_value_test("R(5) = R(5) + 8", X"00000008", "000", "0101", "0101",
+      "00001000", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+      -- addition de R(15) avec une valeur immediate
+      imm_value_test("R(5) = R(5) + (-123)", X"ffffff85", "000", "0101", "0101",
+      "10000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+      -- soustraction d'une valeur immediate à R(3)
+      imm_value_test("R(3) = R(3) - 5", X"fffffffb", "010", "0011", "0101",
+      "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
 
-        -- R(7) = R(15) - 5
-        imm_value_test("R(7) = R(15) - 5", X"0000002b", "010", "0101", "1111",
-        "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
-        -- ecriture d'un registre dans un mot de la memoire + lecture
-        memory_write_test("Mem[R(2)] = R(15)", X"00000030", X"00000000",
-        "011","0000", "0010", "1111", X"00", '0',
-        clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
+      -- R(7) = R(15) - 5
+      imm_value_test("R(7) = R(15) - 5", X"0000002b", "010", "0101", "1111",
+      "00000101", clk, rst, ALUsrc, imm8, regWr, ALUctr, rd, rn);
+      -- ecriture d'un registre dans un mot de la memoire + lecture
+      memory_write_test("Mem[R(2)] = R(15)", X"00000030", X"00000000",
+      "011","0000", "0010", "1111", X"00", '0',
+      clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
 
-        memory_write_test("Mem[R(15)] = R(15)", X"00000030", X"00000030",
-        "011","0000", "1111", "1111", X"00", '0',
-        clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
+      memory_write_test("Mem[R(0) + 5] = R(15)", X"00000030", X"00000005",
+      "000","0000", "0000", "1111", X"05", '1',
+      clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
+
+      memory_write_test("Mem[R(0) + 48] = R(15)", X"00000030", X"00000030",
+      "000","0000", "0000", "1111", X"30", '1',
+      clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
+
+
+      memory_write_test("Mem[R(15)] = R(15)", X"00000030", X"00000030",
+      "011","0000", "1111", "1111", X"00", '0',
+      clk, rst, ALUsrc, MemWr, Wsrc, imm8, ALUctr, rd, rn, rm );
+
 
 
         done <= true;
