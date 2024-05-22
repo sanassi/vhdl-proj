@@ -13,5 +13,5 @@ end entity;
 
 architecture RTL of sign_extension is
 begin
-S <= std_logic_vector(resize(signed(E), E'length));
+S <= std_logic_vector(resize(signed(E), S'length));
 end architecture;
