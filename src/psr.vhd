@@ -2,7 +2,7 @@ LIBRARY ieee;
 use IEEE.numeric_std.all;
 USE ieee.std_logic_1164.all;
 
-entity PSR is 
+entity PSR is
 port(
         clk : in std_logic;
         rst : in std_logic;
@@ -16,7 +16,7 @@ architecture rtl of PSR is
     signal reg : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
-    dataOut <= reg; 
+    dataOut <= reg;
     process (rst, clk)
     begin
         if rst = '1' then
