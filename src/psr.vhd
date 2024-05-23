@@ -1,0 +1,34 @@
+LIBRARY ieee;
+use IEEE.numeric_std.all;
+USE ieee.std_logic_1164.all;
+
+entity PSR is 
+port(
+        clk : in std_logic;
+        rst : in std_logic;
+        We : in std_logic;
+        dataIn : in std_logic_vector(31 downto 0);
+        dataOut : out std_logic_vector(31 downto 0)
+    );
+end entity;
+
+architecture rtl of PSR is
+    signal regAff : std_logic_vector(31 downto 0) := (others => '0');
+
+begin
+    dataOut <= regAff; 
+    process (rst, clk)
+    begin
+        if rst = '1' then
+            regAff <= (others => '0');
+        elsif rising_edge(clk) then
+            if We = '1' then
+                regAff <= dataIn;
+            end if;
+        end if;
+    end process;
+
+
+
+end architecture;
+
