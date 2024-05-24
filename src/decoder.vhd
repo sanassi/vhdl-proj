@@ -25,7 +25,7 @@ procedure handle_proc_instr_op2(
         signal s_imm8 : out std_logic_vector(7 downto 0);
         signal s_rm : out std_logic_vector(3 downto 0);
         signal s_ALUsrc : out std_logic
-        ) is 
+        ) is
     variable rot : std_logic_vector(3 downto 0) := (others => '0');
     variable value : std_logic_vector(7 downto 0) := (others => '0');
     begin
@@ -51,7 +51,7 @@ end procedure;
 begin
 
 -- process sensible sur la sortie de la mémoire instructions : set curr_instr
-process (instruction)
+process (instruction, CPSR)
         variable opcode : std_logic_vector(3 downto 0) := (others => '0');
 begin
     opcode := instruction(24 downto 21);
@@ -59,7 +59,7 @@ begin
         case(opcode) is
             when "1101" =>
                 curr_instr <= MOV;
-            when "0000" =>
+            when "0100" =>
                 if instruction(25) = '1' then
                     curr_instr <= ADDi;
                 else
@@ -89,7 +89,7 @@ end process;
 
 --  process sensible sur les signaux instructions et curr_instr qui donnera la
 --    valeur des commandes des registres et opérateurs du processeur.
-process (curr_instr)
+process (curr_instr, CPSR)
 begin
     rd <= (others => '0');
     rn <= (others => '0');
@@ -111,19 +111,19 @@ begin
             imm8, rm, ALUSrc);
             RegWr <= '1';
             ALUCtr <= "001";
-        when ADDi =>  
+        when ADDi =>
             set_rd_rn(instruction, rd, rn);
             handle_proc_instr_op2('1',instruction(11 downto 0), imm8, rm, ALUSrc);
             RegWr <= '1';
             ALUSrc <= '1';
             PSREn <= '1';
             RegSel <= '1';
-        when ADDr =>  
+        when ADDr =>
             set_rd_rn(instruction, rd, rn);
             handle_proc_instr_op2('0',instruction(11 downto 0), imm8, rm, ALUSrc);
             RegWr <= '1';
             PSREn <= '1';
-        when CMP => 
+        when CMP =>
             set_rd_rn(instruction, rd, rn);
             ALUSrc <= '1';
             ALUCtr <= "010";

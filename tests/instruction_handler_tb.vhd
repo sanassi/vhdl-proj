@@ -50,10 +50,9 @@ architecture testbench of instruction_handler_tb is
 
 begin
     clk <= '0' when Done else not CLK after Period / 2;
-    --rst <= '1', '0' after Period;
 process
     begin
-    
+
   wait for Period; -- PC = 0;
   rst <= '0';
   nPCsel <= '0';
