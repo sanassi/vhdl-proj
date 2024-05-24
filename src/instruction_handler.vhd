@@ -15,8 +15,6 @@ end entity;
 architecture rtl of instruction_handler is
     signal PC, imm32, one, to_add, sign_ext_PC : std_logic_vector(31 downto 0) := (others => '0');
 begin
-    one <= std_logic_vector(to_signed(1,32));
-    sign_ext_PC <= std_logic_vector(to_signed(1, 32) + signed(imm32));
     process (rst, clk)
     begin
         if rst = '1' then
@@ -24,7 +22,7 @@ begin
             to_add <= (others => '0');
             sign_ext_PC <= (others => '0');
         elsif rising_edge(clk) then
-           PC <= std_logic_vector(signed(PC) + signed(to_add));
+            PC <= std_logic_vector(signed(PC) + signed(to_add));
         end if;
     end process;
 
@@ -51,5 +49,7 @@ begin
                 E => imm24,
                 S => imm32
              );
+    one <= std_logic_vector(to_signed(1,32));
+    sign_ext_PC <= std_logic_vector(to_signed(1, 32) + signed(imm32));
 
 end architecture;
