@@ -13,34 +13,27 @@ entity instruction_handler is
 end entity;
 
 architecture rtl of instruction_handler is
-    signal PC, imm32, one, to_add, sign_ext_PC : std_logic_vector(31 downto 0) := (others => '0');
+    signal PC, imm32 : std_logic_vector(31 downto 0) := (others => '0');
 begin
     process (rst, clk)
     begin
         if rst = '1' then
             PC <= (others => '0') ;
-            to_add <= (others => '0');
-            sign_ext_PC <= (others => '0');
         elsif rising_edge(clk) then
-            PC <= std_logic_vector(signed(PC) + signed(to_add));
+            if nPCsel = '0' then
+                PC <= std_logic_vector(signed(PC) + to_signed(1, 32));
+            else
+                PC <= std_logic_vector(signed(PC) + to_signed(1, 32) +
+                      signed(imm32));
+            end if;
         end if;
     end process;
-
 
     inst_memory : entity work.instruction_memory
     port map (
                 PC => PC,
                 instruction => instruction
              );
-
-    mux_21 : entity work.multiplexer_2_to_1
-    port map (
-                A => one,
-                B => sign_ext_PC,
-                COM => nPCsel,
-                S => to_add
-             );
-
     pc_extender : entity work.sign_extension
     generic map (
                     N => 24
@@ -49,7 +42,5 @@ begin
                 E => imm24,
                 S => imm32
              );
-    one <= std_logic_vector(to_signed(1,32));
-    sign_ext_PC <= std_logic_vector(to_signed(1, 32) + signed(imm32));
 
 end architecture;
