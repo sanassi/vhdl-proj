@@ -35,14 +35,16 @@ architecture testbench of decoder_tb is
     signal instruction, CPSR  : std_logic_vector(31 downto 0) := (others => '0');
     signal rd, rn, rm :  std_logic_vector(3 downto 0) := (others => '0');
     signal imm8 :  std_logic_vector(7 downto 0):= (others => '0');
-    signal PC_offset :  std_logic_vector(23 downto 0):= (others => '0');
+    signal imm24, exp_imm24_val :  std_logic_vector(23 downto 0):= (others => '0');
     signal ALUCtr :  std_logic_vector(2 downto 0):= (others => '0');
     signal nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc : std_logic
     := '0';
-    procedure test_value(constant actual : std_logic; constant exp : std_logic;
-                         constant sig_name : string) is
+    procedure test_value(constant actual : in std_logic; constant exp : in std_logic;
+                         constant sig_name : string; constant instr_name :
+                         in string) is
     begin
-        assert (actual = exp) report "[FAIL] signal " & sig_name & " : expected :"
+        assert (actual = exp) report instr_name
+        & " [FAIL] signal " & sig_name & " : expected :"
         & integer'image(to_integer(unsigned'('0' & exp))) & "  got : "
         & integer'image(to_integer(unsigned'('0' & actual))) severity error;
     end procedure;
@@ -57,6 +59,7 @@ architecture testbench of decoder_tb is
         constant exp_PSREn : in std_logic ;
         constant exp_WSrc : in std_logic ;
         constant exp_ALUCtr : in std_logic_vector(2 downto 0);
+        constant exp_imm24 : in std_logic_vector(23 downto 0);
 
         constant s_nPCsel : in std_logic ;
         constant s_RegWr  : in std_logic ;
@@ -66,52 +69,33 @@ architecture testbench of decoder_tb is
         constant s_MemWr : in std_logic ;
         constant s_PSREn : in std_logic ;
         constant s_WSrc : in std_logic ;
-        constant s_ALUCtr : in std_logic_vector(2 downto 0)
+        constant s_ALUCtr : in std_logic_vector(2 downto 0);
+        constant s_imm24 : in std_logic_vector(23 downto 0);
+        constant instr_name : in String
 
                             ) is
     begin
-        test_value(s_nPCsel, exp_nPCsel, "nPCsel");
-        test_value(s_RegWr, exp_RegWr, "RegWr");
-        test_value(s_RegSel, exp_RegSel, "RegSel");
-        test_value(s_ALUSrc, exp_ALUSrc, "ALUSrc");
-        test_value(s_RegAff, exp_RegAff, "RegAff");
-        test_value(s_MemWr, exp_MemWr, "MemWr");
-        test_value(s_PSREn, exp_PSREn, "PSREn");
-        test_value(s_WSrc, exp_WSrc, "WSrc");
+        test_value(s_nPCsel, exp_nPCsel, "nPCsel", instr_name);
+        test_value(s_RegWr, exp_RegWr, "RegWr", instr_name);
+        test_value(s_RegSel, exp_RegSel, "RegSel", instr_name);
+        test_value(s_ALUSrc, exp_ALUSrc, "ALUSrc", instr_name);
+        test_value(s_RegAff, exp_RegAff, "RegAff", instr_name);
+        test_value(s_MemWr, exp_MemWr, "MemWr", instr_name);
+        test_value(s_PSREn, exp_PSREn, "PSREn", instr_name);
+        test_value(s_WSrc, exp_WSrc, "WSrc", instr_name);
 
-        assert (s_ALUCtr = exp_ALUCtr) report
-        "[FAIL] ALU operator, expected : "
+        assert (s_ALUCtr = exp_ALUCtr) report instr_name &
+        " [FAIL] ALU operator, expected : "
         & integer'image(to_integer(unsigned(exp_ALUCtr))) & "  got : "
         & integer'image(to_integer(unsigned(s_ALUCtr))) severity error;
 
-    end procedure;
-
-    procedure test_instr(
-        constant exp_nPCsel : in std_logic ;
-        constant exp_RegWr  : in std_logic ;
-        constant exp_RegSel : in std_logic ;
-        constant exp_ALUSrc : in std_logic ;
-        constant exp_RegAff : in std_logic ;
-        constant exp_MemWr : in std_logic ;
-        constant exp_PSREn : in std_logic ;
-        constant exp_WSrc : in std_logic ;
-        constant instr_idx : in integer ;
-
-        constant s_instr_list : in  RAM11x32;
-        constant s_nPCsel : in std_logic ;
-        constant s_RegWr  : in std_logic ;
-        constant s_RegSel : in std_logic ;
-        constant s_ALUSrc : in std_logic ;
-        constant s_RegAff : in std_logic ;
-        constant s_MemWr : in std_logic ;
-        constant s_PSREn : in std_logic ;
-        constant s_WSrc : in std_logic ;
-        signal s_instruction : out std_logic_vector(31 downto 0)
-                        ) is
-    begin
-
+        assert (s_imm24 = exp_imm24) report instr_name &
+        " [FAIL] PC imm24 operator, expected : "
+        & integer'image(to_integer(unsigned(exp_imm24))) & "  got : "
+        & integer'image(to_integer(unsigned(s_imm24))) severity error;
 
     end procedure;
+
 begin
     process begin
 
@@ -123,8 +107,9 @@ begin
     instruction <=  instr_list(0);
     wait for Period;
     check_signals(
-        '0' ,  '1' ,  '0'  ,  '1'  ,  '0' ,   '0' ,  '0' , '0' , "001" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '1' ,  '0'  ,  '1'  ,  '0' ,   '0' ,  '0' , '0' , "001" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "MOV imm"
     );
     wait for Period;
     ------------------------------
@@ -133,8 +118,9 @@ begin
     instruction <=  instr_list(1);
     wait for Period;
     check_signals(
-        '0' ,  '1' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '1' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '1' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '1' , '0' , "000" ,  exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "ADDr"
     );
     wait for Period;
     ------------------------------
@@ -143,8 +129,9 @@ begin
     instruction <=  instr_list(2);
     wait for Period;
     check_signals(
-        '0' ,  '1' ,  '1'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '1' ,  '1'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "ADDi +"
     );
     wait for Period;
     ------------------------------
@@ -153,8 +140,9 @@ begin
     instruction <=  instr_list(3);
     wait for Period;
     check_signals(
-        '0' ,  '1' ,  '1'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '1' ,  '1'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "ADDi +"
     );
     wait for Period;
     ------------------------------
@@ -163,8 +151,9 @@ begin
     instruction <=  instr_list(4);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '0'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "010" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '0'  ,  '1'  ,  '0' ,   '0' ,  '1' , '0' , "010" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "CMP"
     );
     wait for Period;
     ------------------------------
@@ -173,8 +162,9 @@ begin
     instruction <=  instr_list(5);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '1' ,   '1' ,  '0' , '1' , "011" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '1'  ,  '0'  ,  '1' ,   '1' ,  '0' , '1' , "011" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "STR 1"
     );
     wait for Period;
     ------------------------------
@@ -183,8 +173,9 @@ begin
     instruction <=  instr_list(6);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '1' ,   '1' ,  '0' , '1' , "011" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '1'  ,  '0'  ,  '1' ,   '1' ,  '0' , '1' , "011" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "STR 2"
     );
     wait for Period;
     ------------------------------
@@ -193,8 +184,9 @@ begin
     instruction <=  instr_list(7);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "LDR 1"
     );
     wait for Period;
     ------------------------------
@@ -203,37 +195,45 @@ begin
     instruction <=  instr_list(8);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "LDR 2"
     );
     wait for Period;
     ------------------------------
     -- TEST   :  BLT            --
     ------------------------------
     instruction <=  instr_list(9);
+    exp_imm24_val <= std_logic_vector(to_signed(-5, 24));
     wait for Period;
     --  N = 0
     check_signals(
-        '0' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '0' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "BLT N=0"
     );
     wait for Period;
     CPSR(31) <= '1';
     wait for Period;
     --  N = 1
     check_signals(
-        '1' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '1' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "BLT N=1"
     );
+    CPSR(31) <= '0';
+    exp_imm24_val <= (others => '0');
     wait for Period;
     ------------------------------
     -- TEST   :  BAL            --
     ------------------------------
     instruction <=  instr_list(10);
+    exp_imm24_val <= std_logic_vector(to_signed(-9, 24));
     wait for Period;
     check_signals(
-        '1' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" ,
-      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr
+        '1' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "BAL"
     );
 
     done <= true;
@@ -248,7 +248,7 @@ begin
         rn => rn,
         rm => rm,
         imm8 => imm8,
-        PC_offset => PC_offset,
+        imm24 => imm24,
         ALUCtr => ALUCtr,
         nPCsel => nPCsel,
         RegWr => RegWr,

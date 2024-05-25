@@ -7,7 +7,7 @@ port(
        instruction, CPSR  : in std_logic_vector(31 downto 0);
        rd, rn, rm : out std_logic_vector(3 downto 0);
        imm8 : out std_logic_vector(7 downto 0);
-       PC_offset : out std_logic_vector(23 downto 0);
+       imm24 : out std_logic_vector(23 downto 0);
        ALUCtr : out std_logic_vector(2 downto 0);
        nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc : out
        std_logic
@@ -26,11 +26,10 @@ procedure handle_proc_instr_op2(
         signal s_rm : out std_logic_vector(3 downto 0);
         signal s_ALUsrc : out std_logic
         ) is
-    variable rot : std_logic_vector(3 downto 0) := (others => '0');
-    variable value : std_logic_vector(7 downto 0) := (others => '0');
+    -- variable rot : std_logic_vector(3 downto 0) := (others => '0');
     begin
         if is_imm = '1' then
-            rot := operand2(11 downto 8);
+       --     rot := operand2(11 downto 8);
             s_imm8 <= operand2(7 downto 0) ; --ror to_integer(unsigned(rot));
             s_ALUsrc <= '1';
         else -- do se neet to implement shift (not said in subect for this case)
@@ -94,7 +93,7 @@ begin
     rd <= (others => '0');
     rn <= (others => '0');
     rm <= (others => '0');
-    PC_offset <= (others => '0');
+    imm24 <= (others => '0');
     ALUCtr <= (others => '0');
     nPCsel <= '0';
     RegWr <= '0';
@@ -144,10 +143,12 @@ begin
             Wsrc <= '1'; -- not necessary
         when BAL => -- L = 0
             nPCsel <= '1';
+            imm24 <= instruction(23 downto 0);
         when BLT =>  -- L = 0
             if CPSR(31) = '1' then
                 nPCsel <= '1';
             end if;
+            imm24 <= instruction(23 downto 0);
         when others =>  -- UNSUPPORTED_INSTR
             -- What to do ?
 
