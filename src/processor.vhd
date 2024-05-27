@@ -12,7 +12,7 @@ end entity;
 
 architecture rtl of processor is
 
-    signal instruction, CPSR, inputPSR, result, inputRegAff, dataAfficheur : std_logic_vector(31 downto 0) := (others => '0');
+    signal instruction, CPSR, inputPSR, result, inputRegAff, displayData : std_logic_vector(31 downto 0) := (others => '0');
     signal rd, rn, rm, rb :  std_logic_vector(3 downto 0) := (others => '0');
     signal imm8 : std_logic_vector(7 downto 0):= (others => '0');
     signal imm24 : std_logic_vector(23 downto 0):= (others => '0');
@@ -43,7 +43,7 @@ begin
         rst => rst,
         We => RegAff,
         dataIn => inputRegAff,
-        dataOut => dataAfficheur
+        dataOut => displayData
             );
 
     instruction_handler : entity work.instruction_handler
