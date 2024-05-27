@@ -5,7 +5,7 @@ USE ieee.std_logic_1164.all;
 entity processor is
 port(
         clk : in std_logic;
-        rst : in std_logic;
+        rst : in std_logic
     );
 
 end entity;
@@ -14,7 +14,8 @@ architecture rtl of processor is
 
     signal instruction, CPSR, inputPSR, result, inputRegAff, dataAfficheur : std_logic_vector(31 downto 0) := (others => '0');
     signal rd, rn, rm, rb :  std_logic_vector(3 downto 0) := (others => '0');
-    signal imm8 :  std_logic_vector(7 downto 0):= (others => '0');
+    signal imm8 : std_logic_vector(7 downto 0):= (others => '0');
+    signal imm24 : std_logic_vector(23 downto 0):= (others => '0');
     signal PC_offset :  std_logic_vector(23 downto 0):= (others => '0');
     signal ALUCtr :  std_logic_vector(2 downto 0):= (others => '0');
     signal nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc : std_logic
@@ -40,7 +41,7 @@ begin
     port map(
         clk => clk,
         rst => rst,
-        We => RegAff
+        We => RegAff,
         dataIn => inputRegAff,
         dataOut => dataAfficheur
             );
@@ -96,7 +97,7 @@ PU : entity work.process_unit
                 ALUsrc => ALUsrc,
                 Wsrc => Wsrc,
                 MemWr => MemWr,
-                result => s,
+                result => result,
                 inputRegAff => inputRegAff,
                 N => N,
                 Z => Z,
