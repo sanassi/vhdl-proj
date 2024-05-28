@@ -5,14 +5,15 @@ USE ieee.std_logic_1164.all;
 entity processor is
 port(
         clk : in std_logic;
-        rst : in std_logic
+        rst : in std_logic;
+        displayData : out std_logic_vector(31 downto 0)
     );
 
 end entity;
 
 architecture rtl of processor is
 
-    signal instruction, CPSR, inputPSR, result, inputRegAff, displayData : std_logic_vector(31 downto 0) := (others => '0');
+    signal instruction, CPSR, inputPSR, result, inputRegAff  : std_logic_vector(31 downto 0) := (others => '0');
     signal rd, rn, rm, rb :  std_logic_vector(3 downto 0) := (others => '0');
     signal imm8 : std_logic_vector(7 downto 0):= (others => '0');
     signal imm24 : std_logic_vector(23 downto 0):= (others => '0');
