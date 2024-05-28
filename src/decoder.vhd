@@ -130,6 +130,7 @@ begin
         when LDR =>
             -- no need to handle offset ?
             set_rd_rn(instruction, rd, rn);
+            RegWr <= '1';
             ALUCtr <= "011";
             Wsrc <= '1';
             RegSel <= '1';
