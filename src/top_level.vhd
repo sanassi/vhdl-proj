@@ -4,9 +4,9 @@ use ieee.std_logic_1164.all;
 
 entity top_level is
 port (
-        CLOCK_50 : in std_logic;
-        rst : in std_logic;
-        SW          : IN STD_LOGIC_VECTOR(9 downto 0);
+      CLOCK_50          :  in   std_logic;
+      SW                : IN STD_LOGIC_VECTOR(9 downto 0);
+      KEY               : in std_logic_vector(1 downto 0);
 		HEX0 			:  OUT  STD_LOGIC_VECTOR(0 TO 6);
 		HEX1 			:  OUT  STD_LOGIC_VECTOR(0 TO 6);
 		HEX2 			:  OUT  STD_LOGIC_VECTOR(0 TO 6);
@@ -16,17 +16,19 @@ end entity;
 
 architecture rtl of top_level is
     signal pol : std_logic := '0';
+    signal rst : std_logic := '0';
     signal displayData : std_logic_vector(31 downto 0) := (others => '0');
 begin
 
 pol <= SW(9);
+rst <= not KEY(0);
 
-processor : entity work.processor
-port map(
-            clk => CLOCK_50,
-            rst => rst,
-            displayData => displayData
-        );
+  processor : entity work.processor
+  port map(
+      clk => CLOCK_50,
+      rst => rst,
+      displayData => displayData
+  );
 
 SEG0: entity work.seven_seg
     port map (Data => displayData(3 downto 0), pol => pol, Segout => HEX0);
@@ -39,7 +41,6 @@ SEG2: entity work.seven_seg
 
 SEG3: entity work.seven_seg
     port map (Data => displayData(15 downto 12), pol => pol, Segout => HEX3);
-
 
 end architecture rtl;
 
