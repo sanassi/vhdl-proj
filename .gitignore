@@ -3,3 +3,6 @@ work/
 *.ghw
 fit/
 !fit/*.sof
+src/data_memory.vhd.bak
+src/seven_seg.vhd.bak
+src/top_level.vhd.bak

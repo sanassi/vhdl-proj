@@ -37,7 +37,7 @@ begin
         when x"8" => sevseg <= "1111111";
         when x"9" => sevseg <= "1111011";
 
-        when x"a" => sevseg <= "1110110";
+        when x"a" => sevseg <= "1110111";
         when x"b" => sevseg <= "0011111";
         when x"c" => sevseg <= "1001110";
         when x"d" => sevseg <= "0111101";
