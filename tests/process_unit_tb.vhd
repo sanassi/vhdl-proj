@@ -11,12 +11,12 @@ architecture testbench of process_unit_tb is
     signal CLK      : std_logic := '0';
     signal RST      : std_logic := '1';
     signal Done : boolean := false;
-    signal RegWr, Wsrc, ALUsrc, MemWr  :  std_logic := '0';
+    signal RegWr, Wsrc, ALUsrc, MemWr, N,Z,C,V  :  std_logic := '0';
     signal imm8  :  std_logic_vector(7 downto 0) := (others => '0');
 
     signal ALUctr  :  std_logic_vector(2 downto 0) := (others => '0');
-    signal rd, rn, rm  :  std_logic_vector(3 downto 0) :=  (others => '0');
-    signal s   :  std_logic_vector(31 downto 0) :=  (others => '0');
+    signal rd, rn, rm :  std_logic_vector(3 downto 0) :=  (others => '0');
+    signal s, inputRegAff   :  std_logic_vector(31 downto 0) :=  (others => '0');
 procedure readRegister(constant reg_nb : in Std_logic_vector(3 downto 0);
                    signal write_enable : out Std_logic;
                    signal ALU_op : out Std_logic_vector(2 downto 0);
@@ -252,6 +252,11 @@ PU : entity work.process_unit
                 ALUsrc => ALUsrc,
                 Wsrc => Wsrc,
                 MemWr => MemWr,
-                result => s
+                result => s,
+                inputRegAff => inputRegAff,
+                N => N,
+                Z => Z,
+                C => C,
+                V => V
             );
 end architecture testbench;

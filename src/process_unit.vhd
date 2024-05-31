@@ -13,13 +13,13 @@ entity process_unit is
             ALUsrc : in std_logic;
             Wsrc : in std_logic;
             MemWr : in std_logic;
-            result   : out std_logic_vector(31 downto 0)
+            result, inputRegAff   : out std_logic_vector(31 downto 0);
+            N,Z,C,V : out std_logic
          );
 end entity;
 
 architecture rtl of process_unit is
-    signal N, Z, C, V : std_logic := '0';
-    signal W, ALU_A, ALU_B, ALU_out, rg_B, imm32, dataOut: std_logic_vector(31 downto 0) := (others => '0');
+    signal W, ALU_A, ALU_B, ALU_out, reg_B, imm32, dataOut: std_logic_vector(31 downto 0) := (others => '0');
 begin
     register_bench : entity work.reg_bench
 port map (
@@ -31,7 +31,7 @@ port map (
             Rw => Rd,
             we => RegWr,
             A => ALU_A,
-            B => rg_B
+            B => reg_B
          );
     ALU : entity work.alu
 port map (
@@ -52,7 +52,7 @@ port map (
     MUX1 : entity work.multiplexer_2_to_1
     generic map (N => 32)
     port map(
-            A => rg_B,
+            A => reg_B,
             B => imm32,
             COM => ALUSrc,
             S => ALU_B
@@ -61,7 +61,7 @@ port map (
     port map (
         clk => clk,
         rst => rst,
-        dataIn => rg_B,
+        dataIn => reg_B,
         dataOut => dataOut,
         addr => ALU_out(5 downto 0),
         WrEn => MemWr
@@ -75,4 +75,5 @@ port map (
             S => W
             );
     result <= W;
+    inputRegAff <= reg_B;
 end architecture;

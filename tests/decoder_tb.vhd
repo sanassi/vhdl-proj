@@ -184,7 +184,7 @@ begin
     instruction <=  instr_list(7);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
+        '0' ,  '1' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
       nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
       "LDR 1"
     );
@@ -195,7 +195,7 @@ begin
     instruction <=  instr_list(8);
     wait for Period;
     check_signals(
-        '0' ,  '0' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
+        '0' ,  '1' ,  '1'  ,  '0'  ,  '0' ,   '0' ,  '0' , '1' , "011" , exp_imm24_val,
       nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
       "LDR 2"
     );
