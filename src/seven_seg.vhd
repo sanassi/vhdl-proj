@@ -23,7 +23,7 @@ end entity seven_seg;
 architecture rtl of seven_seg is
     signal sevseg : std_logic_vector(1 to 7);
 begin
-process(Data, Pol)
+process(Data, Pol, sevseg)
 begin
     case(Data) is
         when x"0" => sevseg <= "1111110";

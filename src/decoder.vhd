@@ -87,7 +87,7 @@ end process;
 
 --  process sensible sur les signaux instructions et curr_instr qui donnera la
 --    valeur des commandes des registres et opérateurs du processeur.
-process (curr_instr, CPSR)
+process (curr_instr, CPSR, instruction)
 begin
     rd <= (others => '0');
     rn <= (others => '0');
