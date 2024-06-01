@@ -30,5 +30,3 @@ architecture RTL of instruction_memory is
 begin
     Instruction <= mem(to_integer(unsigned (PC)));
 end architecture;
--- 1110 0110 0000 0001 0010 0000 0000 0000
--- 11100110000000010010000000000000
