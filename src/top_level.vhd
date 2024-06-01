@@ -16,17 +16,21 @@ end entity;
 
 architecture rtl of top_level is
     signal pol : std_logic := '0';
-    signal rst : std_logic := '0';
+    signal rst, IRQ0, IRQ1 : std_logic := '0';
     signal displayData : std_logic_vector(31 downto 0) := (others => '0');
 begin
 
 pol <= SW(9);
-rst <= not KEY(0);
+rst <= not SW(0);
+IRQ0 <= not KEY(0);
+IRQ1 <= not KEY(1);
 
   processor : entity work.processor
   port map(
       clk => CLOCK_50,
       rst => rst,
+      IRQ0 => IRQ,
+      IRQ1 => IRQ,
       displayData => displayData
   );
 

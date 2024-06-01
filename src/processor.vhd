@@ -6,6 +6,8 @@ entity processor is
 port(
         clk : in std_logic;
         rst : in std_logic;
+        IRQ0 : in std_logic;
+        IRQ1 : in std_logic;
         displayData : out std_logic_vector(31 downto 0)
     );
 
@@ -18,10 +20,11 @@ architecture rtl of processor is
     signal imm8 : std_logic_vector(7 downto 0):= (others => '0');
     signal imm24 : std_logic_vector(23 downto 0):= (others => '0');
     signal PC_offset :  std_logic_vector(23 downto 0):= (others => '0');
+    signal VICPC :  std_logic_vector(31 downto 0):= (others => '0');
     signal ALUCtr :  std_logic_vector(2 downto 0):= (others => '0');
     signal nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc : std_logic
     := '0';
-    signal N, Z, C, V : std_logic := '0';
+    signal N, Z, C, V, IRQ, IRQ_END, IRQ_SERV : std_logic := '0';
 
 begin
 
@@ -46,12 +49,26 @@ begin
         dataIn => inputRegAff,
         dataOut => displayData
             );
+    VIC : entity work.VIC
+    port map(
+        clk => clk,
+        rst => rst,
+        IRQ_SERV => IRQ_SERV,
+        IRQ0 => IRQ0,
+        IRQ1 => IRQ1,
+        IRQ  => IRQ,
+        VICPC => VICPC
+            );
 
     instruction_handler : entity work.instruction_handler
     port map (
         clk => clk,
         rst => rst,
         nPCsel => nPCsel,
+        IRQ => IRQ,
+        IRQ_END => IRQ_END,
+        VICPC => VICPC,
+        IRQ_SERV => IRQ_SERV,
         instruction => instruction,
         imm24 => imm24
              );
@@ -73,6 +90,7 @@ begin
         RegAff => RegAff,
         MemWr => MemWr,
         PSREn => PSREn,
+        IRQ_END => IRQ_END,
         WSrc => Wsrc
              );
 

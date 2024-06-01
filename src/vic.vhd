@@ -53,7 +53,6 @@ begin
         else
             VICPC <= (others => '0');
         end if;
-        
         IRQ <= IRQ1_req or IRQ0_req;
     end if;
 end process;

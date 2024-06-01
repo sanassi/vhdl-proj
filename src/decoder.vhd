@@ -9,14 +9,14 @@ port(
        imm8 : out std_logic_vector(7 downto 0);
        imm24 : out std_logic_vector(23 downto 0);
        ALUCtr : out std_logic_vector(2 downto 0);
-       nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc : out
+       nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, IRQ_END : out
        std_logic
     );
 
 end entity;
 architecture rtl of decoder is
 
-type enum_instruction is (MOV, ADDi, ADDr, CMP, LDR, STR, BAL, BLT, UNSUPPORTED_INSTR);
+type enum_instruction is (MOV, ADDi, ADDr, CMP, LDR, STR, BAL, BLT, BX, UNSUPPORTED_INSTR);
 signal curr_instr: enum_instruction;
 
 procedure handle_proc_instr_op2(
@@ -76,7 +76,11 @@ begin
         if instruction(31 downto 28) = "1011" then -- LT / Less Than
             curr_instr <= BLT; -- branchement si N = 1 du CPSR
         elsif instruction(31 downto 28) = "1110" then -- AL / Always
-            curr_instr <= BAL;
+            if instruction(27 downto 24) = "1011" then
+                curr_instr <= BX;
+            else
+                curr_instr <= BAL;
+            end if;
         else
             curr_instr <= UNSUPPORTED_INSTR;
         end if;
@@ -103,6 +107,7 @@ begin
     MemWr <= '0';
     PSREn <= '0';
     WSrc <= '0';
+    IRQ_END <= '0';
     case(curr_instr) is
         when MOV =>
             set_rd_rn(instruction, rd, rn);
@@ -149,6 +154,8 @@ begin
                 nPCsel <= '1';
             end if;
             imm24 <= instruction(23 downto 0);
+        when BX =>
+            IRQ_END <= '1';
         when others =>  -- UNSUPPORTED_INSTR
             -- What to do ?
 

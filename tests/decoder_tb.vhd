@@ -235,6 +235,19 @@ begin
       nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
       "BAL"
     );
+    ------------------------------
+    -- TEST   :  BX             --
+    ------------------------------
+    instruction <=  instr_list(10);
+    exp_imm24_val <= std_logic_vector(to_signed(-9, 24));
+    wait for Period;
+    check_signals(
+        '1' ,  '0' ,  '0'  ,  '0'  ,  '0' ,   '0' ,  '0' , '0' , "000" , exp_imm24_val,
+      nPCsel, RegWr, RegSel, ALUSrc, RegAff, MemWr, PSREn, WSrc, ALUCtr, imm24,
+      "BAL"
+    );
+
+    done <= true;
 
     done <= true;
     wait;
