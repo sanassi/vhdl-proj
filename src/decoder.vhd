@@ -26,17 +26,16 @@ procedure handle_proc_instr_op2(
         signal s_rm : out std_logic_vector(3 downto 0);
         signal s_ALUsrc : out std_logic
         ) is
-    -- variable rot : std_logic_vector(3 downto 0) := (others => '0');
     begin
         if is_imm = '1' then
-       --     rot := operand2(11 downto 8);
-            s_imm8 <= operand2(7 downto 0) ; --ror to_integer(unsigned(rot));
+            s_imm8 <= operand2(7 downto 0) ;
             s_ALUsrc <= '1';
-        else -- do se neet to implement shift (not said in subect for this case)
+        else
             s_rm <= operand2(3 downto 0);
             s_ALUsrc <= '0';
         end if;
     end procedure;
+
 procedure set_rd_rn(
         constant s_instruction : in std_logic_vector(31 downto 0);
         signal s_rd : out std_logic_vector(3 downto 0);
@@ -94,6 +93,7 @@ begin
     rn <= (others => '0');
     rm <= (others => '0');
     imm24 <= (others => '0');
+    imm8 <= (others => '0');
     ALUCtr <= (others => '0');
     nPCsel <= '0';
     RegWr <= '0';
@@ -124,18 +124,17 @@ begin
             PSREn <= '1';
         when CMP =>
             set_rd_rn(instruction, rd, rn);
+            handle_proc_instr_op2('1',instruction(11 downto 0), imm8, rm, ALUSrc);
             ALUSrc <= '1';
             ALUCtr <= "010";
             PSREn <= '1';
         when LDR =>
-            -- no need to handle offset ?
             set_rd_rn(instruction, rd, rn);
             RegWr <= '1';
             ALUCtr <= "011";
             Wsrc <= '1';
             RegSel <= '1';
         when STR =>
-            -- no need to handle offset ?
             set_rd_rn(instruction, rd, rn);
             ALUCtr <= "011";
             MemWr <= '1';

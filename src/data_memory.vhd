@@ -21,10 +21,10 @@ architecture RTL of data_memory is
         variable result : table;
     begin
         for i in 62 downto 0 loop
-            result(i) := std_logic_vector(to_signed(i + 1,32));
+            result(i) := std_logic_vector(to_signed(1,32));
         end loop;
         result(63):=X"00000030";
-        result(32):=X"00000032";
+        result(32):=X"00000A00";
         result(42):=X"00000042";
         return result;
     end init_regs;
