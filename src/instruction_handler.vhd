@@ -33,11 +33,14 @@ begin
             end if;
             if IRQ_END = '1' then
                 PC <= std_logic_vector(signed(LR) + to_signed(1, 32));
+                LR := (others => '0');
             end if;
             if IRQ = '1'  then
-                LR := PC;
-                IRQ_SERV <= '1';
-                PC <= VICPC;
+                if LR = x"00000000" then
+                    LR := PC;
+                    IRQ_SERV <= '1';
+                    PC <= VICPC;
+                end if;
             end if ;
         end if;
     end process;

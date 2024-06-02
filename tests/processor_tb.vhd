@@ -14,7 +14,7 @@ architecture testbench of processor_tb is
     type table16x32 is array(15 downto 0) of std_logic_vector(31 downto 0);
     type enum_instruction is (MOV, ADDi, ADDr, CMP, LDR, STR, BAL, BLT, UNSUPPORTED_INSTR);
     signal decoder_curr_instr: enum_instruction;
-    signal clk, IRQ      : std_logic := '0';
+    signal clk, IRQ0, IRQ1      : std_logic := '0';
     signal rst      : std_logic := '1';
     signal Done : boolean := false;
     signal displayData : std_logic_vector(31 downto 0);-- := (others => '0');
@@ -25,7 +25,7 @@ architecture testbench of processor_tb is
     signal data_mem_registers: table64x32;
     signal reg_bench_registers: table16x32;
     signal decoder_instr, alu_out, alu_a, alu_b: std_logic_vector(31 downto 0);
-    constant Period : time := 1 us; -- speed up simulation with a 100kHz clock
+    constant Period : time := 10 us;
 begin
     clk <= '0' when Done else not CLK after Period / 2;
     process
@@ -45,7 +45,13 @@ begin
      -- init_signal_spy("/processor_tb/processor/pu/alu/B", "alu_b");
      -- init_signal_spy("/processor_tb/processor/pu/alu/op", "alu_op");
         rst <= '0';
-        for curr_instruction in 0 to 128 loop -- 7 it de trop
+        for curr_instruction in 0 to 5 loop
+            wait for Period;
+        end loop;
+        IRQ0 <= '1';
+        wait for Period;
+        IRQ0 <= '0';
+        for curr_instruction in 0 to 23 loop
             wait for Period;
         end loop;
     done <= true;
@@ -55,8 +61,8 @@ processor : entity work.processor
 port map(
             clk => clk,
             rst => rst,
-            IRQ0 => IRQ,
-            IRQ1 => IRQ,
+            IRQ0 => IRQ0,
+            IRQ1 => IRQ1,
             displayData => displayData
         );
 
