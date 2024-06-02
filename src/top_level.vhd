@@ -21,7 +21,7 @@ architecture rtl of top_level is
 begin
 
 pol <= SW(9);
-rst <= not SW(0);
+rst <= SW(0);
 IRQ0 <= not KEY(0);
 IRQ1 <= not KEY(1);
 
@@ -29,8 +29,8 @@ IRQ1 <= not KEY(1);
   port map(
       clk => CLOCK_50,
       rst => rst,
-      IRQ0 => IRQ,
-      IRQ1 => IRQ,
+      IRQ0 => IRQ0,
+      IRQ1 => IRQ1,
       displayData => displayData
   );
 
