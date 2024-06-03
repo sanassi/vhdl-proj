@@ -13,8 +13,7 @@ vcom -93 ../src/decoder.vhd
 vcom -93 ../src/psr.vhd
 vcom -93 ../src/vic.vhd
 vcom -93 ../src/processor.vhd
-vcom -93 ../tests/process_unit_tb.vhd
-vcom -93 ../tests/processor_tb.vhd
+vcom -93 ../simu/processor_tb.vhd
 
 vsim -novopt processor_tb
 add wave *
