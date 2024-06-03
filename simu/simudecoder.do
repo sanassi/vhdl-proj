@@ -9,7 +9,7 @@ vcom -93 ../src/instruction_memory.vhd
 vcom -93 ../src/instruction_handler.vhd
 vcom -93 ../src/reg_bench.vhd
 vcom -93 ../src/process_unit.vhd
-vcom -93 ../tests/decoder_tb.vhd
+vcom -93 ../simu/decoder_tb.vhd
 
 vsim -novopt decoder_tb
 add wave *
