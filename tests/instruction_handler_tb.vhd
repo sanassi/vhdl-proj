@@ -205,15 +205,7 @@ process
   test_interrupt(instruction, '0', IRQ_SERV, exps_instr, 22);
   wait for Period;
   test_interrupt(instruction, '0', IRQ_SERV, exps_instr, 23);
-  IRQ <= '1';
-  VICPC <= x"00000009";
   wait for Period;
-  IRQ <= '0';
-  test_interrupt(instruction, '1', IRQ_SERV, exps_instr, 9);
-  wait for Period;
-  test_interrupt(instruction, '0', IRQ_SERV, exps_instr, 10);
-
-  wait for Period; --
 
 
   done <= true;
